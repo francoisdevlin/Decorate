@@ -25,3 +25,10 @@
   allows you to use it on a per-form basis."
   [decorator]
   (partial apply-decorator decorator))
+
+(defn to-decorator
+  "This function turns a higher order fn to a decorator.  Not quite
+  sure what the use case is, but it can effectively undo to-hof" 
+  [hof]
+  (fn decorator [f] 
+    (fn wrap [& args] (apply hof f args))))

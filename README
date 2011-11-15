@@ -3,10 +3,10 @@
 This is an independant decorator library I've created in order to demonstate the power
 of decorators.  It is made up of the following parts
 
-* decorate.core - This is where the core decorator forms are stored
-* decorate.invokable - This is where definvoke is stored.  Contributed by Meikel Brandmeyer
-* decorate.same - The same protocol
-* decorate.common - Includes common decorators, such as logging, validating, coercing.  Also includes the word-like protocol.
+* decorators.core - This is where the core decorator forms are stored
+* decorators.invokable - This is where definvoke is stored.  Contributed by Meikel Brandmeyer
+* decorators.same - The same protocol
+* decorators.common - Includes common decorators, such as logging, validating, coercing.  Also includes the word-like protocol.
 
 ## Usage
 
@@ -14,6 +14,6 @@ FIXME: write
 
 ## License
 
-Copyright (C) 2011 FIXME
+Copyright (C) 2011 Sean Devlin
 
 Distributed under the Eclipse Public License, the same as Clojure.
