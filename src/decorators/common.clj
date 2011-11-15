@@ -11,24 +11,20 @@
     (fn decorator [f] (with-meta (d f) (meta f)))
     (meta d))))
 
-;(println (macroexpand '(decorate keep-meta keep-meta)))
-;(decorate keep-meta keep-meta)
-
 (defn basic-logger 
   "This is a very basic logging decorator."
   [f]
   (fn [& args] (apply println f args) (apply f args)))
 
-;(println (meta (keep-meta basic-logger)))
-
 (decorate basic-logger keep-meta)
 
 (defn functional-logger [logging-fn] 
   (fn decorate [f]
-    (fn [& args] (apply println (apply logging-fn args)) (apply f args))))
+    (fn [& args] (apply logging-fn f args) (apply f args))))
 
-;The partial comp pattern is for fns that return a decorator.
-(decorate functional-logger (partial comp keep-meta)) 
+(def ^{:doc "This is a very basic version of functional-logger, which prints the fn & arguments to std out."
+       :arglists '([f])}basic-logger
+  (functional-logger println))
 
 (defn validate [& validator-fns]
   (fn decorator [f]
@@ -37,14 +33,10 @@
         (apply f args)
         (throw (Exception. "There was an error in validation"))))))
 
-(decorate validate (partial comp keep-meta)) 
-
 (defn coerce [& coerce-fns]
   (fn decorator [f]
     (fn [& args]
       (apply (apply comp f coerce-fns) args))))
-
-(decorate coerce (partial comp keep-meta)) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -72,31 +64,36 @@
     (comp f unpacker))))
 
 (decorate unpack (validate (comp pos? count)))
-(decorate unpack (partial comp keep-meta)) 
 
-(defn auto-unpack [f]
-  "Tries to automatically uppack the fn into a dictonary.  This doesn't
-  play nice with varargs."
-  (let [args ((comp (partial map keyword) first :arglists meta) f)]
-    ((apply unpack args) f))) 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; Word-like decorator
+;
+; This is a decorator designed to play nice with word-like
+; objects, such as string, keywords, and symbols. 
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;Reject multiple arity arglists
-(decorate auto-unpack 
-          (validate 
-            (comp #{1} count :arglists meta)))
+(defprotocol Wordish
+  (plain-string [s] "This gets a plain string representation of an object")
+  (from-string [object s] "This returns an object from a string s"))
 
-(defn multi-unpack [& value-seqs]
-  "This is a version of unpack that attempts to play with
-  multiple arities well.  Note that the value sequences must
-  all have different lengths."
-  (let [unpacker-dict (apply merge 
-                             (map (fn [& args] {(sort args) (apply juxt args)}) value-seqs))]
-  ))
+(extend-protocol Wordish
+  java.lang.String
+  (plain-string [s] s)
+  (from-string [object s] s)
+  clojure.lang.Keyword
+  (plain-string [s] (name s))
+  (from-string [object s] (keyword s))
+  clojure.lang.Symbol
+  (plain-string [s] (name s))
+  (from-string [object s] (symbol s)))
 
-;Whine if the same length is provided as an input more than once.
-(decorate multi-unpack 
-          (validate 
-            (comp pos? count)
-            (partial every? (comp pos? count))
-            (fn [& args]
-                 (= (count args) (count (set (map count args)))))))
+(defn word-like
+  "This decorator converts a string function into a string/keyword/symbol function.
+  It assumes that the first argument is operated on, and the remaining arguments
+  control how the function behaves. This eliminates the need for writing a 
+  clojure.keyword or clojure.symbol lib."
+  [f]
+  (fn wrap [word & args]
+    (from-string word (apply f (plain-string word) args))))
