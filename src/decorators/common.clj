@@ -1,23 +1,6 @@
 (ns decorators.common
   [:use decorators.core])
 
-(defn keep-meta 
-  "This is a decorator to decorate decorators :)
-  It preserves the input fns metadata."
-  [d]
-  (do
-   (println (class d)) 
-  (with-meta 
-    (fn decorator [f] (with-meta (d f) (meta f)))
-    (meta d))))
-
-(defn basic-logger 
-  "This is a very basic logging decorator."
-  [f]
-  (fn [& args] (apply println f args) (apply f args)))
-
-(decorate basic-logger keep-meta)
-
 (defn functional-logger [logging-fn] 
   (fn decorate [f]
     (fn [& args] (apply logging-fn f args) (apply f args))))
