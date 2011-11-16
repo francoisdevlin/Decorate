@@ -38,3 +38,12 @@
 
 (deftest test-decorate
          (is (x2 [1 2 3]) '(1 2 3)))
+
+(deftest test-dual-form
+         (let [force-pos (dual-form force-positive)
+               wrapped+ (force-pos +)]
+           (is (thrown? Exception (wrapped+ -1 1)))
+           (is  2 (wrapped+ 1 1))
+           (is (thrown? Exception (force-pos + -1 1)))
+           (is  2 (force-pos + 1 1))))
+

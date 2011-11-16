@@ -32,3 +32,10 @@
   [hof]
   (fn decorator [f] 
     (fn wrap [& args] (apply hof f args))))
+
+(defn dual-form
+  "Why didn't I think of this sooner?"
+  [decorator]
+  (fn dual
+    ([f] (decorator f))
+    ([f & args] (apply (decorator f) args))))
