@@ -33,3 +33,8 @@
            (is 2 (hof + 1 1))
            (is 0 (hof - 1 1))
            (is 1 (hof * 1 1))))
+
+(decorate x2 (to-decorator map))
+
+(deftest test-decorate
+         (is (x2 [1 2 3]) '(1 2 3)))
