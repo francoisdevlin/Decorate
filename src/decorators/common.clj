@@ -1,9 +1,19 @@
 (ns decorators.common
-  [:use decorators.core])
+  [:use decorators.core 
+   decorators.number-protocols
+   clojure.template]
+  )
+
+(defn post-comp [& fns]
+  (fn decorate [f]
+    (fn wrap [& args]
+      ((apply comp fns) (apply f args))))) 
 
 (defn functional-logger [logging-fn] 
   (fn decorate [f]
     (fn [& args] (apply logging-fn f args) (apply f args))))
+
+(decorate functional-logger (post-comp dual-form))
 
 (def ^{:doc "This is a very basic version of functional-logger, which prints the fn & arguments to std out."
        :arglists '([f])}basic-logger
@@ -16,10 +26,27 @@
         (apply f args)
         (throw (Exception. "There was an error in validation"))))))
 
+(decorate validate (post-comp dual-form))
+
 (defn coerce [& coerce-fns]
-  (fn decorator [f]
-    (fn [& args]
-      (apply (apply comp f coerce-fns) args))))
+  "Coerce funtions take a vector of args in, a vector of args out.  This
+  ensures that the resulting decorated fn will be the same arity."
+  (let [comp-coerce (apply comp coerce-fns)]
+    (fn decorator [f]
+      (fn [& args]
+        (apply f (comp-coerce args))))))
+
+(decorate coerce (post-comp dual-form))
+
+(do-template 
+  [fn-name coerce-fn]
+  (def fn-name (coerce #(map coerce-fn %)))
+  args-to-int    to-int
+  args-to-long   to-long
+  args-to-double to-double
+  args-to-float  to-float
+  args-to-short  to-short
+  args-to-byte   to-byte)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -46,6 +73,7 @@
   (fn decorator [f]
     (comp f unpacker))))
 
+(decorate unpack (post-comp dual-form))
 (decorate unpack (validate (comp pos? count)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -80,3 +108,5 @@
   [f]
   (fn wrap [word & args]
     (from-string word (apply f (plain-string word) args))))
+
+(decorate word-like dual-form)
