@@ -4,6 +4,11 @@
    clojure.template]
   )
 
+(defn pass 
+  "This is a special function that passes the arguments through, in
+  order to help with decorator testing."
+  [& args] args)
+
 (defn post-comp [& fns]
   (fn decorate [f]
     (fn wrap [& args]

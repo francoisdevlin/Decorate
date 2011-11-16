@@ -4,8 +4,6 @@
   (:use [decorators.common])
   (:use [clojure.test]))
 
-(defn pass [& args] args)
-
 (deftest test-word-like
          (let [word-cap (word-like s/capitalize)]
            (is (word-like s/capitalize :test) :Test)
@@ -37,9 +35,6 @@
          (is (args-to-int pass "1" 2 3.0) [1 2 3])
          (is (args-to-int + "1" 2 3.0) 6)
          )
-
-(deftest test-coerce
-         (is false "FAIL - TODO!!"))
 
 (deftest test-coerce-dict
          (is false "FAIL - TODO!!"))
