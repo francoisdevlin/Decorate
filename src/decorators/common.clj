@@ -10,11 +10,16 @@
   [& args] args)
 
 (defn post-comp [& fns]
+  "This is a decorator factory, designed to be used with other decorators.
+It will compose the results of the fn call.  Work well with decorator factories."
   (fn decorate [f]
     (fn wrap [& args]
       ((apply comp fns) (apply f args))))) 
 
-(defn functional-logger [logging-fn] 
+(defn functional-logger
+  "This is a simple decorator factory designed to help with logging. You provide
+the function w/ side effects, and it calls it at the right time."
+  [logging-fn] 
   (fn decorate [f]
     (fn [& args] (apply logging-fn f args) (apply f args))))
 
@@ -58,7 +63,7 @@
   ensures that the resulting decorated fn will be the same arity."
   (let [comp-coerce (apply comp coerce-fns)]
     (fn decorator [f]
-      (fn [& args]
+      (fn wrapped [& args]
         (apply f (comp-coerce args))))))
 
 (decorate coerce (post-comp dual-decorator))
