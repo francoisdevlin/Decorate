@@ -26,15 +26,30 @@
            (is ["12" "21" "12"] @message-queue)))
 
 (deftest test-validate
-         (is false "FAIL - TODO!!"))
+  (let [validate-fn (validate (partial every? pos?))]
+    (is (validate-fn identity [1 2 3]) [1 2 3])
+    (is (thrown? Exception (validate-fn identity [1 2 0])))
+    ))
+
+(deftest test-forbid
+  (let [forbid-fn (forbid (partial some neg?))]
+    (is (forbid-fn identity [1 2 3]) [1 2 3])
+    (is (thrown? Exception (forbid-fn identity [-1 2 3])))
+    ))
 
 (deftest test-validate-dict
-         (is false "FAIL - TODO!!"))
+  (let [validate-fn (validate-values {:x pos?})]
+    (is (validate-fn identity {:x 1}) {:x 1})
+    (is (thrown? Exception (validate-fn identity {:x 0})))))
+
+(deftest test-forbid-dict
+  (let [forbid-fn (forbid-values {:x neg?})]
+    (is (forbid-fn identity {:x 1}) {:x 1})
+    (is (thrown? Exception (forbid-fn identity {:x -1})))))
 
 (deftest test-args-to-int
          (is (args-to-int pass "1" 2 3.0) [1 2 3])
-         (is (args-to-int + "1" 2 3.0) 6)
-         )
+         (is (args-to-int + "1" 2 3.0) 6))
 
 (deftest test-coerce-dict
   (let [coerce-fn (coerce-values {:x inc :y dec})]
