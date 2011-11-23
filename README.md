@@ -113,7 +113,7 @@ So, which is more useful?  Turning hofs to decorators, or decorators to hofs?  T
 * Higher order functions usually take more than one argument, the target function and its arguments.
 * We can use arity dispatch to have BOTH.
 
-I included a decorator for decorating decorators, called dual-form (see decorators.common for usage).  It wraps the decorators included in decorators.common, so they're ready to be used as either a hof or a decorator.  In the example of args-to-int, this means:
+I included a decorator for decorating decorators, called dual-decorator (see decorators.common for usage).  It wraps the decorators included in decorators.common, so they're ready to be used as either a hof or a decorator.  In the example of args-to-int, this means:
 
 	user=> (args-to-int + "1" 2 3.0)
 	6
