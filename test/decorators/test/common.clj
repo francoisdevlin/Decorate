@@ -37,4 +37,7 @@
          )
 
 (deftest test-coerce-dict
-         (is false "FAIL - TODO!!"))
+  (let [coerce-fn (coerce-values {:x inc :y dec})]
+    (is {:x 11 :y 1} (coerce-fn identity {:x 10 :y 2}))
+    (is (thrown? java.lang.NullPointerException
+                 (coerce-fn identity {:x 10})))))

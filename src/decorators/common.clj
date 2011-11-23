@@ -66,8 +66,13 @@
 
 (defn coerce-values [coerce-dict]
   "Accepts a dictionary as input an returns a coercion
-  decorator as output.  Delegates the actual work to coerce."
-  (coerce (map (fn [[k v]] #(update-in % [k] v)) coerce-dict)))
+  decorator as output.  Delegates the actual work to coerce.
+
+  Note that this will crash and burn if the key is not present."
+  (apply coerce (map (fn coerce-gen [[k v]]
+                       (fn corce-fn [[input-dict & args]]
+                         [(update-in input-dict [k] v)])
+                       ) coerce-dict)))
 
 (defn unpack [& values]
   "This decorator factory is designed to convert a fn 
