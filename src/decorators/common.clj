@@ -18,13 +18,15 @@
   (fn decorate [f]
     (fn [& args] (apply logging-fn f args) (apply f args))))
 
-(decorate functional-logger (post-comp dual-form))
+(decorate functional-logger (post-comp dual-decorator))
 
 (def ^{:doc "This is a very basic version of functional-logger, which prints the fn & arguments to std out."
        :arglists '([f])}basic-logger
   (functional-logger println))
 
 (defn validate [& validator-fns]
+  "This function creates a decorator that forces every condition to be
+  true to allow function execution.  This is a similar version of "
   (fn decorator [f]
     (fn
       ([a]
@@ -45,9 +47,10 @@
            (throw (Exception. "There was an error in validation"))))
       )))
 
-(decorate validate (post-comp dual-form))
+(decorate validate (post-comp dual-decorator))
 
-(defn forbid [& forbidden-fns]
+(defn forbid
+  [& forbidden-fns]
   (apply validate (map complement forbidden-fns)))
 
 (defn coerce [& coerce-fns]
@@ -58,7 +61,7 @@
       (fn [& args]
         (apply f (comp-coerce args))))))
 
-(decorate coerce (post-comp dual-form))
+(decorate coerce (post-comp dual-decorator))
 
 (do-template 
   [fn-name coerce-fn]
@@ -105,7 +108,7 @@
   (fn decorator [f]
     (comp f unpacker))))
 
-(decorate unpack (post-comp dual-form))
+(decorate unpack (post-comp dual-decorator))
 (decorate unpack (validate (comp pos? count)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -141,4 +144,4 @@
   (fn wrap [word & args]
     (from-string word (apply f (plain-string word) args))))
 
-(decorate word-like dual-form)
+(decorate word-like dual-decorator)

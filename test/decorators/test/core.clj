@@ -39,11 +39,16 @@
 (deftest test-decorate
          (is (x2 [1 2 3]) '(1 2 3)))
 
-(deftest test-dual-form
-         (let [force-pos (dual-form force-positive)
+(deftest test-dual-decorator
+         (let [force-pos (dual-decorator force-positive)
                wrapped+ (force-pos +)]
            (is (thrown? Exception (wrapped+ -1 1)))
            (is  2 (wrapped+ 1 1))
            (is (thrown? Exception (force-pos + -1 1)))
            (is  2 (force-pos + 1 1))))
 
+(deftest test-dual-hof
+         (let [dual-map (dual-hof map)
+               wrapped-inc (dual-map inc)]
+           (is (wrapped-inc [1 2 3]) [2 3 4])
+           (is (dual-map inc [1 2 3]) [2 3 4])))
