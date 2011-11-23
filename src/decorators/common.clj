@@ -26,12 +26,29 @@
 
 (defn validate [& validator-fns]
   (fn decorator [f]
-    (fn [& args]
-      (if (every? #(apply % args) validator-fns)
-        (apply f args)
-        (throw (Exception. "There was an error in validation"))))))
+    (fn
+      ([a]
+         (if (every? #(% a) validator-fns)
+           (f a)
+           (throw (Exception. "There was an error in validation"))))
+      ([a b]
+         (if (every? #(% a b) validator-fns)
+           (f a b)
+           (throw (Exception. "There was an error in validation"))))
+      ([a b c]
+         (if (every? #(% a b c) validator-fns)
+           (f a b c)
+           (throw (Exception. "There was an error in validation"))))
+      ([a b c & args]
+         (if (every? #(apply % a b c args) validator-fns)
+           (apply f a b c args)
+           (throw (Exception. "There was an error in validation"))))
+      )))
 
 (decorate validate (post-comp dual-form))
+
+(defn forbid [& forbidden-fns]
+  (apply validate (map complement forbidden-fns)))
 
 (defn coerce [& coerce-fns]
   "Coerce funtions take a vector of args in, a vector of args out.  This
@@ -62,7 +79,12 @@
 (defn validate-values [validator-dict]
   "Accepts a dictionary as input an returns a validator
   decorator as output.  Delegates the actual work to validate."
-  (validate (map (fn [[k v]] (comp v k)) validator-dict)))
+  (apply validate (map (fn [[k v]] (comp v k)) validator-dict)))
+
+(defn forbid-values [forbidden-dict]
+  "Accepts a dictionary as input an returns a validator
+  decorator as output.  Delegates the actual work to validate."
+  (apply forbid (map (fn [[k v]] (comp v k)) forbidden-dict)))
 
 (defn coerce-values [coerce-dict]
   "Accepts a dictionary as input an returns a coercion
