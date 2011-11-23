@@ -10,6 +10,10 @@ This is an independent decorator library I've created in order to demonstrate th
 * decorators.common - Includes common decorators, such as logging, validating, coercing.  Also includes the word-like protocol.
 * decorators.number-protocols - A collection of protocols for converting to a numeric type.
 
+You can find the clojar artifact here:
+
+https://clojars.org/org.clojars.sean_devlin/decorators
+
 ## Usage
 
 So what is a decorator, anyway?  For the sake of discussion, a decorator is a function that can modify a function.  Let's take a look at a small example.
